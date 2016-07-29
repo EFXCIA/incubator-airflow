@@ -31,6 +31,27 @@ from airflow.exceptions import AirflowException
 DAGS_FOLDER = os.path.expanduser(conf.get('core', 'DAGS_FOLDER'))
 
 
+SYSTEM_UMASK = None
+
+
+def get_umask():
+    '''Use `os.umask` to determine the system umask. This temporarily sets the
+    umask before returning it to its original value. After the first call, the
+    umask value is cached as `SYSTEM_UMASK`.'''
+    global SYSTEM_UMASK
+
+    if SYSTEM_UMASK is not None:
+        return SYSTEM_UMASK
+
+    SYSTEM_UMASK = os.umask(0o0077)
+    os.umask(SYSTEM_UMASK)
+
+    return SYSTEM_UMASK
+
+
+get_umask()
+
+
 def sigint_handler(signal, frame):
     sys.exit(0)
 
@@ -443,6 +464,7 @@ def scheduler(args):
             files_preserve=[handle],
             stdout=stdout,
             stderr=stderr,
+            umask=get_umask()
         )
         with ctx:
             job.run()
@@ -501,6 +523,7 @@ def worker(args):
             files_preserve=[handle],
             stdout=stdout,
             stderr=stderr,
+            umask=get_umask()
         )
         with ctx:
             sp = subprocess.Popen(['airflow', 'serve_logs'], env=env)
@@ -562,6 +585,7 @@ def flower(args):
             pidfile=TimeoutPIDLockFile(pid, -1),
             stdout=stdout,
             stderr=stderr,
+            umask=get_umask()
         )
 
         with ctx:
@@ -589,6 +613,7 @@ def kerberos(args):  # noqa
             pidfile=TimeoutPIDLockFile(pid, -1),
             stdout=stdout,
             stderr=stderr,
+            umask=get_umask()
         )
 
         with ctx:

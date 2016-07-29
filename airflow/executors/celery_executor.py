@@ -29,6 +29,7 @@ class CeleryConfig(object):
     CELERYD_CONCURRENCY = configuration.getint('celery', 'CELERYD_CONCURRENCY')
     CELERY_DEFAULT_QUEUE = DEFAULT_QUEUE
     CELERY_DEFAULT_EXCHANGE = DEFAULT_QUEUE
+    CELERY_TASK_RESULT_EXPIRES = 3600
 
 app = Celery(
     configuration.get('celery', 'CELERY_APP_NAME'),
