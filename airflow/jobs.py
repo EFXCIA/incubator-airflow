@@ -241,6 +241,7 @@ class SchedulerJob(BaseJob):
         super(SchedulerJob, self).__init__(*args, **kwargs)
 
         self.heartrate = conf.getint('scheduler', 'SCHEDULER_HEARTBEAT_SEC')
+        self.backfill_on = conf.getboolean('scheduler', 'backfill_on')
         self.max_threads = min(conf.getint('scheduler', 'max_threads'), multiprocessing.cpu_count())
         if 'sqlite' in conf.get('core', 'sql_alchemy_conn'):
             if self.max_threads > 1:
@@ -442,6 +443,11 @@ class SchedulerJob(BaseJob):
                 schedule_end = next_run_date
             elif next_run_date:
                 schedule_end = dag.following_schedule(next_run_date)
+                if not self.backfill_on:
+                    # Prevent the scheudling of dags in the way back.
+                    while schedule_end <= datetime.now() - dag.schedule_interval:
+                        next_run_date = schedule_end
+                        schedule_end = dag.following_schedule(next_run_date)
 
             if next_run_date and dag.end_date and next_run_date > dag.end_date:
                 return

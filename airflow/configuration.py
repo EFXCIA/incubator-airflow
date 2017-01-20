@@ -119,6 +119,7 @@ defaults = {
         'scheduler_heartbeat_sec': 60,
         'authenticate': False,
         'max_threads': 2,
+        'backfill_on': True,
     },
     'celery': {
         'default_queue': 'default',
@@ -334,6 +335,9 @@ scheduler_heartbeat_sec = 5
 # This defines how many threads will run. However airflow will never
 # use more threads than the amount of cpu cores available.
 max_threads = 2
+
+# Whether to allow backfill of scheduled dags
+backfill_on = True
 
 [mesos]
 # Mesos master address which MesosExecutor will connect to.
