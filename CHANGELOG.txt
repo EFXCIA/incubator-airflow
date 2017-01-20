@@ -1,3 +1,10 @@
+AIRFLOW efx_1.8.0, 2017-01-20
+-----------------------------
+
+- make backfill optional via configuration setting
+- secure permissions on logfiles (satisfies DISA hardening)
+- set celery task expires to 3600 because default was 86400 and RabbitMQ was being flooded with queues
+
 AIRFLOW 1.7.1, 2016-05-19
 -------------------------
 
